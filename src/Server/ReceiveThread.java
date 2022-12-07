@@ -102,6 +102,33 @@ public class ReceiveThread implements Runnable {
 					pw.flush();
 				}
 				break;
+				
+			case "A03": //회원 정보 수정 요청
+				System.out.println("회원 정보 수정 요청");
+				
+				uDAO = new UserDAO();
+				User updateUser = uDAO.receiveMember(br);
+				
+				System.out.println("유저 받아옴");
+				check = uDAO.updateMember(updateUser);
+				
+				System.out.println("업데이트 완료");
+				pw.println(check);
+				pw.flush();
+				
+				break;
+				
+			case "A04": //회원 탈퇴 메세지
+				uDAO = new UserDAO();
+				System.out.println("회원 탈퇴 요청");
+				
+				userID = br.readLine();
+				check = uDAO.deleteMember(userID);
+				
+				pw.println(check);
+				pw.flush();
+				
+				break;
 
 			case "B01": // B01 메세지는 목표 등록 메세지
 				Goal goal = new Goal();
@@ -249,6 +276,7 @@ public class ReceiveThread implements Runnable {
 				insertDetailGoal.setContents(br.readLine());
 				insertDetailGoal.setStartDay(br.readLine());
 				insertDetailGoal.setEndDay(br.readLine());
+				
 				insertDetailGoal.setGoal(Boolean.parseBoolean(br.readLine()));
 				
 				System.out.println("세부 목표 정보 수신 완료");

@@ -70,6 +70,57 @@ public class UserDAO {
     	}
     	return false;
     }
+    public boolean updateMember(User user) {
+    	int res = 0;
+    	try {
+    		conn = DB_Conn.getConnection();
+    		sql = "UPDATE account SET name = ?, pnum = ?, birth = ? WHERE id = ?";
+    		pstmt = conn.prepareStatement(sql);
+    		System.out.println("유저 아이디 : " + user.getId());
+    		
+    		pstmt.setString(1, user.getName());
+    		String pnum = user.getPhoneNum().replace("-", "");
+    		String birth = user.getBirth().replace("-", "");
+    		pstmt.setString(2, pnum);
+    		pstmt.setString(3, birth);
+    		pstmt.setString(4, user.getId());
+    		
+    		res = pstmt.executeUpdate();
+    		
+    		if(pstmt != null) 
+		    	pstmt.close();
+		    if(conn != null) 
+		    	conn.close();
+    		
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	
+    	if (res > 0) return true;
+    	else return false;
+    }
+    
+    public boolean deleteMember(String userID) {
+    	int res = 0;
+    	try {
+    		conn = DB_Conn.getConnection();
+    		sql = "DELETE FROM account WHERE id = ?";
+    		pstmt = conn.prepareStatement(sql);
+    		
+    		pstmt.setString(1, userID);
+    		
+    		res = pstmt.executeUpdate();
+    		if(pstmt != null) 
+		    	pstmt.close();
+		    if(conn != null) 
+		    	conn.close();
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	
+    	if (res > 0) return true;
+    	else return false;
+    }
     
     public User receiveMember(BufferedReader br) {
     	User user = new User();
