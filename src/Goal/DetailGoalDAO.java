@@ -120,6 +120,8 @@ public class DetailGoalDAO {
     	else return false;
 	}
 	
+
+	
 	public boolean deleteDetailGoal(int detail_gid) {
 		int res = 0;
 		

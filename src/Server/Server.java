@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 
 public class Server {
 	ServerSocket serverSocket = null; //辑滚家南 积己
-	final int PORT = 1234;
+	final int PORT = 9999;
 	
 	ArrayList<ReceiveThread> childList = new ArrayList();
 	String msg;

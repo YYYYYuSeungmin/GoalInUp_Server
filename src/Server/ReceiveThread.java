@@ -11,6 +11,7 @@ import Goal.DetailGoal;
 import Goal.DetailGoalDAO;
 import Goal.Goal;
 import Goal.GoalDAO;
+import Goal.IsGoal;
 import User.User;
 import User.UserDAO;
 
@@ -28,11 +29,10 @@ public class ReceiveThread implements Runnable {
 	GoalDAO gDAO;
 	DetailGoalDAO detailGoalDAO;
 	String msg;
-
 	// 쓰레드 생성자
 	public ReceiveThread(Socket socket) {
 		child = socket;
-
+		
 		System.out.println(child.getInetAddress() + "님 입장");
 		try {
 			is = child.getInputStream(); // 사용자로 부터 데이터를 입력받는 스트림
@@ -109,13 +109,10 @@ public class ReceiveThread implements Runnable {
 				uDAO = new UserDAO();
 				User updateUser = uDAO.receiveMember(br);
 				
-				System.out.println("유저 받아옴");
 				check = uDAO.updateMember(updateUser);
 				
-				System.out.println("업데이트 완료");
 				pw.println(check);
 				pw.flush();
-				
 				break;
 				
 			case "A04": //회원 탈퇴 메세지
@@ -237,6 +234,23 @@ public class ReceiveThread implements Runnable {
 				pw.flush();
 
 				break;
+			case "B05": //단일 목표 요청 메세지
+				System.out.println("단일 목표 정보 요청");
+				gDAO = new GoalDAO();
+				
+				int gID = Integer.parseInt(br.readLine());
+				goal = gDAO.getGoal(gID);
+				
+				pw.println(goal.getgID());
+				pw.println(goal.getUserID());
+				pw.println(goal.getTitle());
+				pw.println(goal.getStartDay());
+				pw.println(goal.getEndDay());
+				pw.println(goal.isGoal());
+				pw.flush();
+				
+				break;
+				
 			case "C01": // 세부 목표 리스트 반환 요청
 				System.out.println("세부 목표리스트 송신 요청");
 
@@ -284,6 +298,9 @@ public class ReceiveThread implements Runnable {
 				
 				pw.println(check);
 				pw.flush();
+				
+				isGoalCheck(insertDetailGoal.getgID());
+				
 				break;
 				
 			case "C03":
@@ -305,6 +322,8 @@ public class ReceiveThread implements Runnable {
 				
 				pw.println(check);
 				pw.flush();
+				
+				isGoalCheck(updateDetailGoal.getgID());
 				break;
 				
 			case "C04":
@@ -313,10 +332,13 @@ public class ReceiveThread implements Runnable {
 				detailGoalDAO = new DetailGoalDAO();
 				
 				int detail_gid = Integer.parseInt(br.readLine());
+				gID = Integer.parseInt(br.readLine());
 				check = detailGoalDAO.deleteDetailGoal(detail_gid);
 				
 				pw.println(check);
 				pw.flush();
+				
+				isGoalCheck(gID);
 				break;
 				
 			}
@@ -342,5 +364,31 @@ public class ReceiveThread implements Runnable {
 			}
 		}
 
+	}
+	
+	private void isGoalCheck(int gID) {
+		IsGoal isGoal = new IsGoal();
+		
+		isGoal.setGID(gID);
+		detailGoalDAO = new DetailGoalDAO();
+		isGoal.setDetailGoalList(detailGoalDAO.getDetailGoalList(gID));
+		
+		boolean check = isGoal.checkIsGoal();
+		
+		GoalDAO goalDAO = new GoalDAO();
+		Goal goal = new Goal();
+		goal = goalDAO.getGoal(gID);
+		String start = goal.getStartDay().replace("-", "");
+		String end = goal.getEndDay().replace("-", "");
+		goal.setStartDay(start);
+		goal.setEndDay(end);
+		if (check == true) {
+			goal.setGoal(true);
+		}
+		else {
+			goal.setGoal(false);
+		}
+		
+		goalDAO.updateGoal(goal);
 	}
 }

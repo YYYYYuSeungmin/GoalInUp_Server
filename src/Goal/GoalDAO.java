@@ -50,7 +50,7 @@ public class GoalDAO {
     	int res = 0;
     	try {
 			conn = DB_Conn.getConnection();
-			System.out.println("입력받은 Goal의 startDay : " + goal.getStartDay());
+			
 			sql = "UPDATE goal SET id = ?, title = ?, startday = ?, endday = ?, goal = ? WHERE g_id=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, goal.getUserID());
@@ -133,5 +133,56 @@ public class GoalDAO {
 		}
 		
 		return goalList;
+	}
+	
+	public Goal getGoal(int gID) {
+		Goal goal = new Goal();
+		
+		ResultSet rs = null;
+		ArrayList<Goal> goalList = new ArrayList();
+		SimpleDateFormat newformatter = new SimpleDateFormat("yyyy-mm-dd");
+		SimpleDateFormat beforeformatter = new SimpleDateFormat("yyyymmdd");
+		
+		try {
+			conn = DB_Conn.getConnection();
+			
+			sql = "SELECT * FROM GOAL WHERE g_id = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, gID);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				goal.setgID(rs.getInt(1));
+				goal.setUserID(rs.getString(2));
+				goal.setTitle(rs.getString(3));
+				goal.setStartDay(rs.getString(4));
+				goal.setEndDay(rs.getString(5));
+				goal.setGoal(rs.getBoolean(6));
+	
+				String start = goal.getStartDay();
+				String end = goal.getEndDay();
+				
+				Date STARTTIME = beforeformatter.parse(start);
+				Date ENDTIME = beforeformatter.parse(end); //파싱 과정 필요
+				
+				start = newformatter.format(STARTTIME);
+				end = newformatter.format(ENDTIME);
+				
+				goal.setStartDay(start);
+				goal.setEndDay(end);
+				
+				goalList.add(goal);
+			}
+			
+		}catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		return goal;
 	}
 }
